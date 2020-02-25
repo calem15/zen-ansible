@@ -14,8 +14,7 @@
       state: started
       pull: true
       recreate: yes
-      published_ports:
-        - 8000:8000
+      network_mode: host
 
 ### Disable this after first deployment
   - name: Initialize required DB.
