@@ -1,0 +1,8 @@
+[inventory_prod:children]
+servers
+
+[servers:children]
+qa-test
+
+[qa-test]
+qa-test ansible_host=18.141.11.207

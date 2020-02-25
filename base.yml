@@ -1,0 +1,8 @@
+---
+- hosts: qa-test
+  become: yes
+  become_user: root
+  roles:
+    - docker-ce
+    - nginx
+    - node-exporter

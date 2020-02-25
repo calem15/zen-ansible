@@ -1,0 +1,35 @@
+---
+- hosts: qa-test
+  become: yes
+  become_user: root
+  tasks:
+  - name: Create directory for postgres
+    file: path=/data/postgres-{{ env }} state=directory owner=root group=root mode=0755 recurse=yes
+
+  - name: Deploying redis container
+    docker_container:
+      name: qa-redis-{{ env }}
+      image: redis:alpine
+      restart_policy: always
+      state: started
+      pull: true
+      recreate: yes
+      published_ports:
+        - 6379:6379
+
+  - name: Deploying postgres container
+    docker_container:
+      name: qa-postgres-{{ env }}
+      image: postgres:9.5-alpine
+      restart_policy: always
+      state: started
+      pull: true
+      recreate: yes
+      published_ports:
+        - 5432:5432
+      volumes:
+        - /data/postgres:/var/lib/postgresql/data
+      env:
+        POSTGRES_USER: "forge"
+        POSTGRES_PASSWORD: "forge"
+        POSTGRES_DB: "forge"

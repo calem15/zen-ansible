@@ -1,0 +1,26 @@
+---
+- name: Installing additional packages
+  apt: pkg={{ item }} state=present update_cache=yes
+  with_items:
+    - apt-transport-https
+    - ca-certificates
+    - curl
+    - software-properties-common
+    - python-pip
+    - python-setuptools
+
+- name: install docker-py via pip
+  pip:
+    name: docker-py
+
+- name: Adding docker-ce gpg key
+  apt_key: url=https://download.docker.com/linux/ubuntu/gpg state=present
+
+- name: Adding docker repository
+  apt_repository: repo='deb [arch=amd64] https://download.docker.com/linux/ubuntu {{ ansible_lsb.codename }} stable' state=present
+
+- name: Installing docker-ce
+  apt: pkg=docker-ce update_cache=yes state=present
+  notify:
+    - reload systemd
+    - restart docker

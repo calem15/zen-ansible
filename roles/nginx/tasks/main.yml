@@ -1,0 +1,72 @@
+---
+- debug: var=ansible_os_family
+
+- name: create nginx group
+  group: name=nginx state=present
+  tags:
+    - user
+
+- name: create nginx user
+  user: name=nginx group=nginx
+  tags:
+    - user
+
+- name: Add nginx PPA and update apt cache (Ubuntu)
+  apt_repository:
+    repo: ppa:nginx/stable
+    update_cache: yes
+    state: present
+  tags:
+    - install
+
+- name: Add nginx official repo key (Debian)
+  apt_key: url=http://nginx.org/keys/nginx_signing.key
+  tags:
+    - install
+
+- name: Add nginx official repo (Debian)
+  apt_repository:
+    repo: "{{ item }} http://nginx.org/packages/debian/ {{ ansible_distribution_release }} nginx"
+    update_cache: yes
+    state: present
+  with_items:
+    - deb
+    - deb-src
+  when: ansible_distribution == "Debian"
+  tags:
+    - install
+
+- name: install required system packages
+  apt: name=nginx state=latest
+  tags:
+    - install
+
+- name: remove wrong upstart script
+  file: dest=/etc/init/nginx.conf state=absent
+
+- name: put /etc/nginx/conf.d/magnolia.conf
+  template: src=nginx/magnolia.conf dest=/etc/nginx/conf.d/
+  notify: reload nginx
+
+- name: put /etc/nginx/conf.d/magnoliapub.conf
+  template: src=nginx/magnoliapub.conf dest=/etc/nginx/conf.d/
+  notify: reload nginx
+
+- name: Delete default nginx conf
+  file: dest=/etc/nginx/conf.d/default state=absent
+  notify: nginx reload
+  when: nginx_no_default
+
+- name: put /etc/nginx/cors_options
+  template: src=nginx/cors_options dest=/etc/nginx/cors_options
+  notify: reload nginx
+
+- name: create /etc/systemd/system/nginx.service.d
+  file: state=directory dest=/etc/systemd/system/nginx.service.d
+
+- name: put /etc/systemd/system/nginx.service.d/limits.conf
+  template: src=limits.conf dest=/etc/systemd/system/nginx.service.d/limits.conf
+
+- name: start nginx
+  service: name={{ nginx_service_name }} state=started enabled=yes
+  ignore_errors: true

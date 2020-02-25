@@ -1,0 +1,18 @@
+---
+- hosts: qa-test
+  become: yes
+  become_user: root
+  tasks:
+  - name: Create directory for qa-test
+    file: path=/data/qatest-{{ env }} state=directory owner=root group=root mode=0755 recurse=yes
+
+  - name: Deploying qa-test container
+    docker_container:
+      name: qa-test-{{ env }}
+      image: calem15/qa-test:{{ docker_image_version | default("latest") }}
+      restart_policy: always
+      state: started
+      pull: true
+      recreate: yes
+      published_ports:
+        - 8000:8000
