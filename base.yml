@@ -6,3 +6,4 @@
     - docker-ce
     - nginx
     - node-exporter
+    - nginx-log-exporter

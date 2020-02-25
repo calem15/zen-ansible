@@ -16,3 +16,7 @@
       recreate: yes
       published_ports:
         - 8000:8000
+
+### Disable this after first deployment
+  - name: Initialize required DB.
+    command: docker exec -ti qa-test-{{ env }} php artisan migrate:refresh --seed

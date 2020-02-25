@@ -1,0 +1,29 @@
+---
+- name: Installing nginx-vts-exporter
+  get_url: url=https://github.com/hnlq715/nginx-vts-exporter/releases/download/v0.6/nginx-vts-exporter-0.6.linux-amd64.tar.gz dest=/root/nginx-vts-exporter-0.6.linux-amd64.tar.gz
+
+- name: Unarchiving nginx-vts-exporter
+  unarchive: src=/root/nginx-vts-exporter-0.6.linux-amd64.tar.gz dest=/root/ remote_src=yes
+
+- name: Copying nginx-vts-exporter to bin directory
+  copy: src=/root/nginx-vts-exporter-0.6.linux-amd64/nginx-vts-exporter dest=/usr/local/bin/nginx-vts-exporter owner=root group=root mode=0755 remote_src=yes
+
+- name: Install init.d script for nginx-vts-exporter
+  template: src=etc/init.d/nginx-vts-exporter dest=/etc/init.d/nginx-vts-exporter owner=root group=root mode=0755
+
+- name: Starting nginx-vts-exporter
+  service: name=nginx-vts-exporter state=started enabled=yes
+
+- name: Installing nginx-log-exporter
+  get_url: url=https://github.com/martin-helmich/prometheus-nginxlog-exporter/releases/download/v1.0.1/prometheus-nginxlog-exporter dest=/usr/local/bin/nginxlog-exporter owner=root group=root mode=0755
+
+- name: Installing configuration for nginxlog-exporter
+  template: src={{ config }} dest=/etc/nginxlog-exporter.hcl owner=root group=root mode=0644
+  tags:
+    - nginxlog
+
+- name: Install init.d script for nginx-log-exporter
+  template: src=etc/init.d/nginx-log-exporter dest=/etc/init.d/nginx-log-exporter owner=root group=root mode=0755
+
+- name: Starting nginx-log-exporter
+  service: name=nginx-log-exporter state=started enabled=yes
