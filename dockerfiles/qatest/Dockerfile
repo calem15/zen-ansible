@@ -8,6 +8,8 @@ RUN apt-get update \
 RUN apt-get update \
     && apt-get -y install git \
     && apt-get clean; rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* /usr/share/doc/*
+RUN curl -s https://getcomposer.org/installer | php
+RUN mv composer.phar /usr/bin/composer
 RUN php composer install --no-dev
 RUN php artisan preset none
 EXPOSE 8000
