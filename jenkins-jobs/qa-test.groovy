@@ -12,6 +12,8 @@ timestamps {
                   userRemoteConfigs: [[credentialsId: 'MyPrivateKey', refspec: '+refs/heads/*:refs/tags/*', url: 'git@github.com:zenrooms/qa-test.git']]
                   ])
             git credentialsId: 'my-private-key' , branch: "$branch_tag", url: 'git@github.com:zenrooms/qa-test.git'
+            sh "composer install --no-dev"
+            sh "php artisan preset none"
             sh "sudo docker build -t calem15/qa-test:$branch_tag . -f ./dockerfiles/qatest/Dockerfile "
             sh "sudo docker tag calem15/qa-test:$branch_tag calem15/qa-test:latest"
             sh "sudo docker push calem15/qa-test:$branch_tag"
